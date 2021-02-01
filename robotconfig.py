@@ -34,7 +34,7 @@
     # If doing drive test, treat this as the left side of the drivetrain
     "encoderInverted": False,
     # Only if you are doing drive (set to False if not needed)
-    "rightEncoderInverted": False,
+    "rightEncoderInverted": True,
     # ** The following is only if you are using a gyro for the DriveTrain test**
     # Gyro type (one of "NavX", "Pigeon", "ADXRS450", "AnalogGyro", or "None")
     "gyroType": "NavX",

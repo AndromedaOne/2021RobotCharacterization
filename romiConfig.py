@@ -1,4 +1,5 @@
 {
+    # HERE IS THE UNITS PER ROTATION FOR UNIT TYPE METERS: 0.21991
     # Ports for motors
     # If doing drive test, treat this as the left side of the drivetrain
     "motorPorts": [0],

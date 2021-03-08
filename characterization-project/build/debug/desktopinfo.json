@@ -1,0 +1,12 @@
+[
+  {
+    "name": "characterization-project (in project characterization-project)",
+    "file": "/Users/seandoyle/git/2021RobotCharacterization/characterization-project/build/libs/characterization-project.jar",
+    "extensions": [
+      "/Users/seandoyle/git/2021RobotCharacterization/characterization-project/build/tmp/expandedArchives/halsim_gui-2021.2.2-osxx86-64.zip_f5561bcd7c4301ba6b8af8f98515ed37/osx/x86-64/shared/libhalsim_gui.dylib"
+    ],
+    "env": {},
+    "librarydir": "/Users/seandoyle/git/2021RobotCharacterization/characterization-project/build/tmp/jniExtractDir",
+    "mainclass": "dc.Main"
+  }
+]

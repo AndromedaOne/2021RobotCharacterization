@@ -55,12 +55,12 @@ import java.util.ArrayList;
 
 public class Robot extends TimedRobot {
 
-  static private int ENCODER_EDGES_PER_REV = 1 / 4;
+  static private double ENCODER_EDGES_PER_REV = 5760 / 4.;
   static private int PIDIDX = 0;
-  static private int ENCODER_EPR = 1;
-  static private double GEARING = 13.2;
+  static private int ENCODER_EPR = 5760;
+  static private double GEARING = 120;
   
-  private double encoderConstant = (1 / GEARING);
+  private double encoderConstant = (1 / GEARING) * (1 / ENCODER_EDGES_PER_REV);
 
   Joystick stick;
   DifferentialDrive drive;
@@ -96,19 +96,15 @@ public class Robot extends TimedRobot {
   }
 
   // methods to create and setup motors (reduce redundancy)
-  public CANSparkMax setupCANSparkMax(int port, Sides side, boolean inverted) {
+  public Spark setupSpark(int port, Sides side, boolean inverted) {
     // create new motor and set neutral modes (if needed)
-    // setup Brushless spark
-    CANSparkMax motor = new CANSparkMax(port, MotorType.kBrushless);
-    motor.restoreFactoryDefaults(); 
-    motor.setIdleMode(IdleMode.kBrake);  
+    Spark motor = new Spark(port);
     motor.setInverted(inverted);
     
     // setup encoder if motor isn't a follower
     if (side != Sides.FOLLOWER) {
     
-      
-      CANEncoder encoder = motor.getEncoder();
+      Encoder encoder;
 
 
 
@@ -118,18 +114,21 @@ public class Robot extends TimedRobot {
       case RIGHT:
         // set right side methods = encoder methods
 
+        encoder = new Encoder(6, 7);
+        encoder.setReverseDirection(false);
 
-        rightEncoderPosition = ()
-          -> encoder.getPosition() * encoderConstant;
-        rightEncoderRate = ()
-          -> encoder.getVelocity() * encoderConstant / 60.;
+        encoder.setDistancePerPulse(encoderConstant);
+        rightEncoderPosition = encoder::getDistance;
+        rightEncoderRate = encoder::getRate;
 
         break;
       case LEFT:
-        leftEncoderPosition = ()
-          -> encoder.getPosition() * encoderConstant;
-        leftEncoderRate = ()
-          -> encoder.getVelocity() * encoderConstant / 60.;
+        encoder = new Encoder(4, 5);
+        encoder.setReverseDirection(false);
+        encoder.setDistancePerPulse(encoderConstant);
+        leftEncoderPosition = encoder::getDistance;
+        leftEncoderRate = encoder::getRate;
+
 
         break;
       default:
@@ -152,17 +151,13 @@ public class Robot extends TimedRobot {
     stick = new Joystick(0);
     
     // create left motor
-    CANSparkMax leftMotor = setupCANSparkMax(1, Sides.LEFT, false);
+    Spark leftMotor = setupSpark(0, Sides.LEFT, false);
 
-    CANSparkMax leftFollowerID3 = setupCANSparkMax(3, Sides.FOLLOWER, false);
-    leftFollowerID3.follow(leftMotor, false);
-        
-    
+    SpeedControllerGroup leftGroup = new SpeedControllerGroup(leftMotor);
 
-    CANSparkMax rightMotor = setupCANSparkMax(2, Sides.RIGHT, false);
-    CANSparkMax rightFollowerID4 = setupCANSparkMax(4, Sides.FOLLOWER, false);
-    rightFollowerID4.follow(rightMotor, false);
-    drive = new DifferentialDrive(leftMotor, rightMotor);
+    Spark rightMotor = setupSpark(1, Sides.RIGHT, false);
+    SpeedControllerGroup rightGroup = new SpeedControllerGroup(rightMotor);
+    drive = new DifferentialDrive(leftGroup, rightGroup);
     drive.setDeadband(0);
 
     //
@@ -171,8 +166,7 @@ public class Robot extends TimedRobot {
 
     // Note that the angle from the NavX and all implementors of WPILib Gyro
     // must be negated because getAngle returns a clockwise positive angle
-    AHRS navx = new AHRS(SPI.Port.kMXP);
-    gyroAngleRadians = () -> -1 * Math.toRadians(navx.getAngle());
+    gyroAngleRadians = () -> 0.0;
 
     // Set the update rate instead of using flush because of a ntcore bug
     // -> probably don't want to do this on a robot in competition
